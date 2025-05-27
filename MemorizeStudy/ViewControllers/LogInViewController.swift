@@ -9,9 +9,26 @@ import UIKit
 
 class LogInViewController: UIViewController {
 
-    var dataSource: [User] = []
-    let dataManager = CoreDataManager.shared
-    lazy var titleLabel: UILabel = {
+    private  var dataSource: [User] = []
+    private let dataManager = CoreDataManager.shared
+    private lazy var newUserButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("New player?", for: .normal)
+        let action: UIAction = .init { _ in
+            if self.newUserButton.titleLabel?.text == "New player?" {
+                self.newUserButton.setTitle("Back", for: .normal)
+            } else {
+                self.newUserButton.setTitle("New player?", for: .normal)
+            }
+            self.signUpButton.isHidden.toggle()
+            self.emailTextField.isHidden.toggle()
+            self.logInButton.isHidden.toggle()
+        }
+        button.addAction(action, for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Log In"
         label.textAlignment = .center
@@ -19,25 +36,26 @@ class LogInViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    lazy var nickNameTextField: UITextField = {
+    private lazy var nickNameTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Nickname"
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
-    lazy var emailTextField: UITextField = {
+    private lazy var emailTextField: UITextField = {
         let textField = UITextField()
+        textField.isHidden = true
         textField.placeholder = "Email"
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
-    lazy var passwordTextField: UITextField = {
+    private lazy var passwordTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Password"
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
-    lazy var logInButton: UIButton = {
+    private lazy var logInButton: UIButton = {
         let button = UIButton()
         button.setTitle("Log In", for: .normal)
 
@@ -47,6 +65,10 @@ class LogInViewController: UIViewController {
                     let nextVC = ViewController()
                     nextVC.currentPlayer = user
                     self.present(nextVC, animated: true)
+                } else {
+                    let alert = UIAlertController(title: "Wrong password or nickname", message: "Check your input", preferredStyle: .alert)
+                    alert.addAction(.init(title: "OK", style: .default))
+                    self.present(alert, animated: true)
                 }
             }
         }
@@ -54,22 +76,30 @@ class LogInViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-    lazy var signUpButton: UIButton = {
+    private lazy var signUpButton: UIButton = {
         let button = UIButton()
         button.setTitle("Sign Up", for: .normal)
         let action: UIAction = UIAction { _ in
-            let newUser = User(context: self.dataManager.viewContext)
-            newUser.email = self.emailTextField.text ?? ""
-            newUser.highscore = 0
-            newUser.nickName = self.nickNameTextField.text ?? ""
-            newUser.passsword = self.passwordTextField.text ?? ""
-            self.dataManager.saveContext()
-            self.dataSource.append(newUser)
-            let nextVC = ViewController()
-            nextVC.currentPlayer = newUser
-            self.present(nextVC, animated: true)
+            if self.checkName(self.nickNameTextField.text) && self.checkEmail(self.emailTextField.text) {
+                let newUser = User(context: self.dataManager.viewContext)
+                newUser.email = self.emailTextField.text ?? ""
+                newUser.highscore = 0
+                newUser.nickName = self.nickNameTextField.text ?? ""
+                newUser.passsword = self.passwordTextField.text ?? ""
+                self.dataManager.saveContext()
+                self.dataSource.append(newUser)
+                let nextVC = ViewController()
+                nextVC.currentPlayer = newUser
+                self.present(nextVC, animated: true)
+            } else {
+                let alert = UIAlertController(title: "Wrong Email format or nickname", message: "Check your input", preferredStyle: .alert)
+                alert.addAction(.init(title: "OK", style: .default))
+                self.present(alert, animated: true)
+            }
+            
             print(self.dataSource)
         }
+        button.isHidden = true
         button.addAction(action, for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -80,13 +110,14 @@ class LogInViewController: UIViewController {
         setupLayout()
         // Do any additional setup after loading the view.
     }
-    func setupLayout() {
+    private func setupLayout() {
         view.addSubview(titleLabel)
         view.addSubview(emailTextField)
         view.addSubview(passwordTextField)
         view.addSubview(logInButton)
         view.addSubview(signUpButton)
         view.addSubview(nickNameTextField)
+        view.addSubview(newUserButton)
         NSLayoutConstraint.activate([
             
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
@@ -113,6 +144,10 @@ class LogInViewController: UIViewController {
             signUpButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             signUpButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
+            newUserButton.topAnchor.constraint(equalTo: signUpButton.bottomAnchor),
+            newUserButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            newUserButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
         ])
     }
 
@@ -125,5 +160,19 @@ class LogInViewController: UIViewController {
         // Pass the selected object to the new view controller.
     }
     */
-
+    private func checkName(_ name : String? ) -> Bool{
+        guard name != nil else { return false }
+        return name!.allSatisfy{ ("a"..."z").contains($0) || ("A"..."Z").self.contains($0)
+        
+        }
+        
+    }
+    private func checkEmail(_ email: String? ) -> Bool{
+        guard email != nil else {  return false
+        }
+        let emailRegex = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,64}$"
+            let emailPredicate = NSPredicate(format: "SELF MATCHES[c] %@", emailRegex)
+            return emailPredicate.evaluate(with: email)
+               
+    }
 }
