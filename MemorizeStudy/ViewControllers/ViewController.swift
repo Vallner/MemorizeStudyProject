@@ -9,7 +9,7 @@ import UIKit
 
 class ViewController: UIViewController {
 
-    var currentPlayer: User?
+    weak var currentPlayer: User?
     lazy var nameLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .center
@@ -43,6 +43,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupLayout()
+        self.navigationItem.backButtonTitle = "logout"
         // Do any additional setup after loading the view.
     }
 

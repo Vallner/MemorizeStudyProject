@@ -1,22 +1,37 @@
 //
-//  LogInViewController.swift
+//  RegisterViewController.swift
 //  MemorizeStudy
 //
-//  Created by Danila Savitsky on 26.05.25.
+//  Created by  on 28.05.25.
 //
 
 import UIKit
 
-class LogInViewController: UIViewController {
+class RegisterViewController: UIViewController {
 
-    var dataSource: [User] = []
-    private let dataManager = CoreDataManager.shared
-    private lazy var newUserButton: UIButton = {
+    let dataManager = CoreDataManager.shared
+    
+    private lazy var signUpButton: UIButton = {
         let button = UIButton()
-        button.setTitle("New player?", for: .normal)
-        let action: UIAction = .init { _ in
-            let nextVC = RegisterViewController()
-            self.navigationController?.pushViewController(nextVC, animated: true)
+        button.setTitle("Sign Up", for: .normal)
+        let action: UIAction = UIAction { _ in
+            if self.checkName(self.nickNameTextField.text) && self.checkEmail(self.emailTextField.text) {
+                let newUser = User(context: self.dataManager.viewContext)
+                newUser.email = self.emailTextField.text ?? ""
+                newUser.highscore = 0
+                newUser.nickName = self.nickNameTextField.text ?? ""
+                newUser.passsword = self.passwordTextField.text ?? ""
+                self.dataManager.saveContext()
+                (self.navigationController?.viewControllers[0] as? LogInViewController)?.dataSource.append(newUser)
+                let nextVC = ViewController()
+                nextVC.currentPlayer = newUser
+                self.navigationController?.pushViewController(nextVC, animated: true)
+            } else {
+                let alert = UIAlertController(title: "Wrong Email format or nickname", message: "Check your input", preferredStyle: .alert)
+                alert.addAction(.init(title: "OK", style: .default))
+                self.present(alert, animated: true)
+            }
+            
         }
         button.addAction(action, for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -36,49 +51,32 @@ class LogInViewController: UIViewController {
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
+    private lazy var emailTextField: UITextField = {
+        let textField = UITextField()
+        textField.placeholder = "Email"
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        return textField
+    }()
     private lazy var passwordTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Password"
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
-    private lazy var logInButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("Log In", for: .normal)
-
-        let action: UIAction = UIAction { _ in
-            for user in self.dataSource {
-                if (user.nickName == self.nickNameTextField.text) && (user.passsword == self.passwordTextField.text) {
-                    let nextVC = ViewController()
-                    nextVC.currentPlayer = user
-                    self.navigationController?.pushViewController(nextVC, animated: true)
-                } else {
-                    let alert = UIAlertController(title: "Wrong password or nickname", message: "Check your input", preferredStyle: .alert)
-                    alert.addAction(.init(title: "OK", style: .default))
-                    self.present(alert, animated: true)
-                }
-            }
-        }
-        button.addAction(action, for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        dataSource = dataManager.obtainData()
         setupLayout()
-        self.navigationItem.backButtonTitle = "logout"
+        view.backgroundColor = .systemBlue
         // Do any additional setup after loading the view.
     }
-    private func setupLayout() {
+    private func setupLayout(){
         view.addSubview(titleLabel)
-        view.addSubview(passwordTextField)
         view.addSubview(nickNameTextField)
-        view.addSubview(logInButton)
-        view.addSubview(newUserButton)
+        view.addSubview(emailTextField)
+        view.addSubview(passwordTextField)
+        view.addSubview(signUpButton)
         NSLayoutConstraint.activate([
-            
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
@@ -87,19 +85,19 @@ class LogInViewController: UIViewController {
             nickNameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             nickNameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
 
+            emailTextField.topAnchor.constraint(equalTo: nickNameTextField.bottomAnchor, constant: 20),
+            emailTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            emailTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            passwordTextField.topAnchor.constraint(equalTo: nickNameTextField.bottomAnchor, constant: 20),
+            passwordTextField.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 20),
             passwordTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             passwordTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            logInButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 20),
-            logInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            logInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            signUpButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 20),
+            signUpButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            signUpButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            newUserButton.topAnchor.constraint(equalTo: logInButton.bottomAnchor),
-            newUserButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            newUserButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
+    
         ])
     }
 
