@@ -16,6 +16,7 @@ class LogInViewController: UIViewController {
         button.setTitle("New player?", for: .normal)
         let action: UIAction = .init { _ in
             let nextVC = RegisterViewController()
+            nextVC.delegate = self
             self.navigationController?.pushViewController(nextVC, animated: true)
         }
         button.addAction(action, for: .touchUpInside)
@@ -48,19 +49,24 @@ class LogInViewController: UIViewController {
 
         let action: UIAction = UIAction { _ in
             for user in self.dataSource {
-                if (user.nickName == self.nickNameTextField.text) && (user.passsword == self.passwordTextField.text) {
+                if user.nickName == self.nickNameTextField.text,
+                   user.passsword == self.passwordTextField.text {
                     let nextVC = ViewController()
                     nextVC.currentPlayer = user
                     self.navigationController?.pushViewController(nextVC, animated: true)
-                } else {
-                    let alert = UIAlertController(title: "Wrong password or nickname", message: "Check your input", preferredStyle: .alert)
-                    alert.addAction(.init(title: "OK", style: .default))
-                    self.present(alert, animated: true)
+                    return
                 }
             }
+            print(self.dataSource)
+            let alertController = UIAlertController(title: "Error", message: "Wrong username or password", preferredStyle: .alert)
+            let alertAction = UIAlertAction(title: "OK", style: .default)
+            alertController.addAction(alertAction)
+            self.present(alertController, animated: true)
+            
         }
         button.addAction(action, for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
+
         return button
     }()
     
@@ -112,19 +118,4 @@ class LogInViewController: UIViewController {
         // Pass the selected object to the new view controller.
     }
     */
-    private func checkName(_ name : String? ) -> Bool{
-        guard name != nil else { return false }
-        return name!.allSatisfy{ ("a"..."z").contains($0) || ("A"..."Z").self.contains($0)
-        
-        }
-        
-    }
-    private func checkEmail(_ email: String? ) -> Bool{
-        guard email != nil else {  return false
-        }
-        let emailRegex = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,64}$"
-            let emailPredicate = NSPredicate(format: "SELF MATCHES[c] %@", emailRegex)
-            return emailPredicate.evaluate(with: email)
-               
-    }
 }

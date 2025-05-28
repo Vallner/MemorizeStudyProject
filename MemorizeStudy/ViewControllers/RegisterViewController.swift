@@ -9,8 +9,8 @@ import UIKit
 
 class RegisterViewController: UIViewController {
 
-    let dataManager = CoreDataManager.shared
-    
+    private let dataManager = CoreDataManager.shared
+    weak var delegate: LogInViewController?
     private lazy var signUpButton: UIButton = {
         let button = UIButton()
         button.setTitle("Sign Up", for: .normal)
@@ -21,8 +21,8 @@ class RegisterViewController: UIViewController {
                 newUser.highscore = 0
                 newUser.nickName = self.nickNameTextField.text ?? ""
                 newUser.passsword = self.passwordTextField.text ?? ""
-                self.dataManager.saveContext()
-                (self.navigationController?.viewControllers[0] as? LogInViewController)?.dataSource.append(newUser)
+//                self.dataManager.saveContext()
+                self.delegate?.dataSource.append(newUser)
                 let nextVC = ViewController()
                 nextVC.currentPlayer = newUser
                 self.navigationController?.pushViewController(nextVC, animated: true)
