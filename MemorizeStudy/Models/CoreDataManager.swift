@@ -42,7 +42,7 @@ class CoreDataManager {
     }
     func obtainData() -> [User] {
         let userFetchRequest = User.fetchRequest()
-        let sortDescriptor = NSSortDescriptor(key: "highscore", ascending: true)
+        let sortDescriptor = NSSortDescriptor(key: "highscore", ascending: false)
         userFetchRequest.sortDescriptors = [sortDescriptor]
         let result = try? viewContext.fetch(userFetchRequest)
         return result ?? []

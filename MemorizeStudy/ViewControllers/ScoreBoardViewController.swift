@@ -9,14 +9,41 @@ import UIKit
 
 class ScoreBoardViewController: UIViewController {
     var pageIndex: Int!
+    let scoreboard = {
+        let tableView = UITableView()
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        return tableView
+    }()
+    var dataSource: [User] {
+        get{
+            return CoreDataManager.shared.obtainData()
+        }
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
-
+        scoreboard.dataSource = self
+        scoreboard.delegate = self
+//        view.backgroundColor = .white
+        setupLayout()
         // Do any additional setup after loading the view.
     }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        scoreboard.reloadData()
+    }
     
-
+    func setupLayout() {
+        view.addSubview(scoreboard)
+        print("setupLayoutworking")
+        NSLayoutConstraint.activate([
+            scoreboard.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scoreboard.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scoreboard.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scoreboard.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
+        
+    }
     /*
     // MARK: - Navigation
 
@@ -27,4 +54,20 @@ class ScoreBoardViewController: UIViewController {
     }
     */
 
+}
+extension ScoreBoardViewController: UITableViewDataSource, UITableViewDelegate {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        print(dataSource)
+        return dataSource.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        var configuration = cell.defaultContentConfiguration()
+        configuration.text = self.dataSource[indexPath.row].nickName
+        configuration.secondaryText = "\(self.dataSource[indexPath.row].highscore)"
+        cell.contentConfiguration = configuration
+        print("cell created")
+        return cell
+    }
 }

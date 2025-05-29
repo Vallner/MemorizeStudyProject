@@ -8,11 +8,35 @@
 import UIKit
 
 class GameViewController: UIViewController {
-    var pageIndex: Int!
+    
+     var currentPlayer: User!
+    
+    lazy var button: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("add 10 point to current player", for: .normal)
+        var action: UIAction = .init{ _ in
+            self.currentPlayer.highscore += 10}
+        button.addAction(action, for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .red
+        setupLayout()
         // Do any additional setup after loading the view.
+    }
+    
+    func setupLayout() {
+        view.addSubview(button)
+        NSLayoutConstraint.activate([
+            button.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            button.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            button.widthAnchor.constraint(equalToConstant: 200),
+            button.heightAnchor.constraint(equalToConstant: 50)
+        ])
+        
     }
     
 

@@ -53,6 +53,8 @@ class LogInViewController: UIViewController {
                    user.passsword == self.passwordTextField.text {
                     let nextVC = ViewController()
                     nextVC.currentPlayer = user
+                    print(nextVC.currentPlayer)
+                    print(user)
                     self.navigationController?.pushViewController(nextVC, animated: true)
                     return
                 }

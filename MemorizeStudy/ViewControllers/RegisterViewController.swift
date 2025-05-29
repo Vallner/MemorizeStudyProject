@@ -10,7 +10,7 @@ import UIKit
 class RegisterViewController: UIViewController {
 
     private let dataManager = CoreDataManager.shared
-    weak var delegate: LogInViewController?
+    weak var delegate: LogInViewController!
     private lazy var signUpButton: UIButton = {
         let button = UIButton()
         button.setTitle("Sign Up", for: .normal)
@@ -25,6 +25,7 @@ class RegisterViewController: UIViewController {
                 self.delegate?.dataSource.append(newUser)
                 let nextVC = ViewController()
                 nextVC.currentPlayer = newUser
+                print(nextVC.currentPlayer )
                 self.navigationController?.pushViewController(nextVC, animated: true)
             } else {
                 let alert = UIAlertController(title: "Wrong Email format or nickname", message: "Check your input", preferredStyle: .alert)

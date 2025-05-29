@@ -9,23 +9,27 @@ import UIKit
 
 class ViewController: UITabBarController {
     
-    weak var currentPlayer: User!
-
+    var currentPlayer: User!
+    let gameVC = GameViewController()
+    let scoreBoardVC = ScoreBoardViewController()
+    let aboutGameVC = AboutGameViewController()
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTabBar()
-        
         self.navigationItem.backButtonTitle = "logout"
         // Do any additional setup after loading the view.
     }
-    
+    override func viewWillAppear(_ animated: Bool) {
+        gameVC.currentPlayer = currentPlayer
+    }
     private func setupTabBar() {
         
         tabBar.backgroundColor = .darkGray
-      
-        viewControllers = [generateVC(with: "About game", image: UIImage(systemName: "house")!, viewController: AboutGameViewController()),
-                           generateVC(with: "Game", image: UIImage(systemName: "gamecontroller")!, viewController: GameViewController()),
-                           generateVC(with: "Scoreboard", image: UIImage(systemName: "star")!, viewController: ScoreBoardViewController())
+        
+       
+        viewControllers = [generateVC(with: "About game", image: UIImage(systemName: "house")!, viewController: aboutGameVC),
+                           generateVC(with: "Game", image: UIImage(systemName: "gamecontroller")!, viewController: gameVC),
+                           generateVC(with: "Scoreboard", image: UIImage(systemName: "star")!, viewController: scoreBoardVC)
         ]
     }
     private func generateVC(with title: String, image: UIImage, viewController: UIViewController) -> UIViewController {
