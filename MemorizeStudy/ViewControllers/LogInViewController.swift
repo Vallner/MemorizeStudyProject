@@ -31,13 +31,13 @@ class LogInViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    private lazy var nickNameTextField: UITextField = {
+    private var nickNameTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Nickname"
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
-    private lazy var passwordTextField: UITextField = {
+    private var passwordTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Password"
         textField.translatesAutoresizingMaskIntoConstraints = false

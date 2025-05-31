@@ -40,7 +40,7 @@ class RegisterViewController: UIViewController {
     }()
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Log In"
+        label.text = "Register"
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 30, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
