@@ -10,74 +10,56 @@ import UIKit
 class GameViewController: UIViewController {
     
     var currentPlayer: User!
-    
+    var gameView:UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemBackground
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.clipsToBounds = true
+        view.layer.masksToBounds = true
+        return view
+    }()
     var cards: [CardModel] = [CardModel(frontImage: UIImage(systemName: "moon")!),
+                              CardModel(frontImage: UIImage(systemName: "cross")!),
+                              CardModel(frontImage: UIImage(systemName: "star")!),
                               CardModel(frontImage: UIImage(systemName: "moon")!),
-                              CardModel(frontImage: UIImage(systemName: "moon")!),
-                              CardModel(frontImage: UIImage(systemName: "moon")!),
-                              CardModel(frontImage: UIImage(systemName: "moon")!),
-                              CardModel(frontImage: UIImage(systemName: "moon")!)]
+                              CardModel(frontImage: UIImage(systemName: "cross")!),
+                              CardModel(frontImage: UIImage(systemName: "star")!)]
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .clear
+        cards.shuffle()
         setupLayout()
-        // Do any additional setup after loading the view.
-    }
-    
-    func setupLayout() {
-        let stackView: UIStackView = UIStackView(arrangedSubviews: [])
-        stackView.axis = .vertical
-        stackView.spacing = 20
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.distribution = .fillEqually
-        for row in stride(from: 0, to: cards.count, by: 2) {
-            let newRowOfCards = Array(cards[row..<min(row+2, cards.count)])
-            let stackViewOfRow: UIStackView = UIStackView(arrangedSubviews: newRowOfCards)
-            stackViewOfRow.axis = .horizontal
-            stackViewOfRow.translatesAutoresizingMaskIntoConstraints = false
-            stackViewOfRow.spacing = 20
-            stackViewOfRow.distribution = .fillEqually
-            stackView.addArrangedSubview(stackViewOfRow)
-        }
-        view.addSubview(stackView)
-//        view.addSubview(cardView)
-        NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            stackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
-        ])
         
     }
     
-//    func setupCards(numberOfCards: Int){
-//        let card = cards[0]
-//        switch numberOfCards {
-//        case 8:
-//            let cards = Array(repeating: card, count: numberOfCards)
-//            let stackView: UIStackView = UIStackView(arrangedSubviews: cards)
-//            for card in cards {
-//                card.frame.origin.x += card.frame.width + 20
-//            }
-//        case 12:
-//            
-//        case 16:
-//            
-//        default:
-//            break
-//        }
-//        
-//    }
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    func setupLayout() {
+        print(gameView.bounds.size)
+        gameView.frame = view.frame.insetBy(dx: 0, dy: 100)
+        
+        view.addSubview(gameView)
+        NSLayoutConstraint.activate([
+            gameView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            gameView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            gameView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            gameView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -50)
+            ])
+        let coordinates = getPointsForCards(numberOfRows: 3, numberOfColumns: 2)
+        for card  in cards {
+            card.frame.origin = coordinates[cards.firstIndex(of: card)!]
+            gameView.addSubview(card)
+        }
     }
-    */
-
+    func getPointsForCards(numberOfRows: Int, numberOfColumns: Int) -> [CGPoint] {
+        var coordinates: [CGPoint] = []
+        for row in 0..<numberOfRows {
+            for column in 0..<numberOfColumns {
+                let xPosition: CGFloat = CGFloat(column) * (gameView.frame.width / CGFloat(numberOfColumns))
+                let yPosition: CGFloat = CGFloat(row) * (gameView.frame.height / CGFloat(numberOfRows))
+                coordinates.append(CGPoint(x: xPosition, y: yPosition))
+        }
+    }
+    print(coordinates)
+    return coordinates
+    }
 }

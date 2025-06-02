@@ -9,8 +9,8 @@ import UIKit
 class CardModel: UIView {
    
     private var isFaceUp: Bool = true
-    private var frontView: UIImageView
-    private let backView: UIImageView = UIImageView(image: UIImage(systemName: "chevron.compact.down"))
+    private var frontView: UIImageView = UIImageView(image: UIImage(systemName: "chevron.compact.down"))
+    private let backView: UIImageView
     private func flip() {
         
         let frontView = isFaceUp ? self.frontView : self.backView
@@ -25,11 +25,11 @@ class CardModel: UIView {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             self.flip()
         }
-        self.removeFromSuperview()
+      
     }
     
     init(frontImage: UIImage ) {
-        self.frontView = UIImageView(image: frontImage)
+        self.backView = UIImageView(image: frontImage)
         super.init(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
         backgroundColor = .systemTeal
         layer.cornerRadius = 10

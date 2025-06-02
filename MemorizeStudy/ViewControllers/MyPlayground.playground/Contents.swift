@@ -73,12 +73,12 @@ let card1 = CardModel(frontImage: UIImage(systemName: "moon")!, frame: CGRect(x:
 let card2 = CardModel(frontImage: UIImage(systemName: "cross")!, frame: CGRect(x: 0, y: 0, width: 200, height: 200))
 
 // Arrange in stack view
-let stackView = UIStackView(arrangedSubviews: [card1, card2])
-stackView.frame = CGRect(x: 0, y: 0, width: 800, height: 300)
+let stackView = UIStackView(arrangedSubviews: [card1/*, card2*/])
+stackView.bounds = CGRect(x: 0, y: 0, width: 400, height: 400)
 stackView.axis = .horizontal
 stackView.distribution = .equalSpacing
-//stackView.alignment = .center
-stackView.spacing = 20
+stackView.alignment = .center
+//stackView.spacing = 20
 
 PlaygroundPage.current.liveView = stackView
 
