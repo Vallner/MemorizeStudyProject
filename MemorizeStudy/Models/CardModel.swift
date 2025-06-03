@@ -7,25 +7,21 @@
 import Foundation
 import UIKit
 class CardModel: UIView {
-   
+    weak var delegate: GameViewController?
     private var isFaceUp: Bool = true
-    private var frontView: UIImageView = UIImageView(image: UIImage(systemName: "chevron.compact.down"))
-    private let backView: UIImageView
-    private func flip() {
+    private let frontView: UIImageView = UIImageView(image: UIImage(systemName: "chevron.compact.down"))
+    let backView: UIImageView
+    func flip(completion: (() -> Void)?) {
         
         let frontView = isFaceUp ? self.frontView : self.backView
         let backView = isFaceUp ? self.backView : self.frontView
-        UIView.transition(from: frontView, to: backView, duration: 0.5, options: .transitionFlipFromLeft)
+        UIView.transition(from: frontView, to: backView, duration: 0.5, options: .transitionFlipFromLeft, completion: {finished in completion?()})
         isFaceUp.toggle()
         print("flipped")
         
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        flip()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            self.flip()
-        }
-      
+        flip(completion: writeCard)
     }
     
     init(frontImage: UIImage ) {
@@ -34,13 +30,36 @@ class CardModel: UIView {
         backgroundColor = .systemTeal
         layer.cornerRadius = 10
         layer.masksToBounds = true
+        self.contentMode = .scaleAspectFit
 //        addSubview(backView)
         addSubview(frontView)
-        setupLayout()
     }
-   private  func setupLayout() {
+    func setupLayout() {
+        backView.contentMode = .scaleAspectFit
+        frontView.contentMode = .scaleAspectFit
         backView.frame = bounds
         frontView.frame = bounds
+    }
+    func writeCard(){
+        if delegate?.firstCard == nil {
+            delegate?.firstCard = self
+        } else if delegate?.secondCard == nil {
+            delegate?.secondCard = self
+            delegate?.checkCards()
+        }
+        else {
+            delegate?.firstCard = self
+            delegate?.secondCard = nil
+        }
+    }
+    func disappear() {
+        let animations: () -> Void = {
+            self.alpha = 0
+            self.bounds.size = CGSize(width: 0, height: 0)
+            self.transform = CGAffineTransformMakeRotation(.pi)
+        }
+        UIView.animate(withDuration: 0.5, animations: animations, completion: {finished in self.removeFromSuperview()})
+        
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
