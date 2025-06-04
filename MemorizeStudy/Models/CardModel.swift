@@ -24,7 +24,7 @@ class CardModel: UIView {
         flip(completion: writeCard)
     }
     
-    init(frontImage: UIImage ) {
+    init(frontImage: UIImage? ) {
         self.backView = UIImageView(image: frontImage)
         super.init(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
         backgroundColor = .systemTeal
