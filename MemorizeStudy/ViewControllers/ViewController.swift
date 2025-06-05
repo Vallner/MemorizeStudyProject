@@ -16,17 +16,18 @@ class ViewController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTabBar()
-        self.navigationItem.backButtonTitle = "logout"
+        view.backgroundColor = .white
         // Do any additional setup after loading the view.
     }
     override func viewWillAppear(_ animated: Bool) {
         gameVC.currentPlayer = currentPlayer
+        navigationController?.navigationBar.isHidden = true
     }
     private func setupTabBar() {
         
-        tabBar.backgroundColor = .darkGray
-        
-       
+        tabBar.backgroundColor = .white
+        tabBar.layer.cornerRadius = 20
+        tabBar.layer.shadowOpacity = 0.5
         viewControllers = [generateVC(with: "About game", image: UIImage(systemName: "house")!, viewController: aboutGameVC),
                            generateVC(with: "Game", image: UIImage(systemName: "gamecontroller")!, viewController: gameVC),
                            generateVC(with: "Scoreboard", image: UIImage(systemName: "star")!, viewController: scoreBoardVC)

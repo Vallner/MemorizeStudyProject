@@ -15,7 +15,13 @@ class RegisterViewController: UIViewController {
         let button = UIButton()
         button.setTitle("Sign Up", for: .normal)
         let action: UIAction = UIAction { _ in
-            if self.checkName(self.nickNameTextField.text) && self.checkEmail(self.emailTextField.text) {
+            if self.delegate.dataSource.contains(where: { $0.email == self.emailTextField.text }) {
+                let alert = UIAlertController(title: "This email is already in use",
+                                              message: "Try to LogIn, or use another email",
+                                              preferredStyle: .alert)
+                alert.addAction(.init(title: "OK", style: .default))
+                self.present(alert, animated: true)
+    } else if self.checkName(self.nickNameTextField.text) && self.checkEmail(self.emailTextField.text)&&self.checkPassword(self.passwordTextField.text) {
                 let newUser = User(context: self.dataManager.viewContext)
                 newUser.email = self.emailTextField.text ?? ""
                 newUser.highscore = 0
@@ -25,14 +31,17 @@ class RegisterViewController: UIViewController {
                 self.delegate?.dataSource.append(newUser)
                 let nextVC = ViewController()
                 nextVC.currentPlayer = newUser
-                print(nextVC.currentPlayer )
                 self.navigationController?.pushViewController(nextVC, animated: true)
             } else {
-                let alert = UIAlertController(title: "Wrong Email format or nickname", message: "Check your input", preferredStyle: .alert)
+                let alert = UIAlertController(title: "Wrong Email format, nickname or password",
+                                              message: """
+                                                        Check your input, password should be at least 8 characters,
+                                                        email should be in the format example@gmail.com
+                                                       """,
+                                              preferredStyle: .alert)
                 alert.addAction(.init(title: "OK", style: .default))
                 self.present(alert, animated: true)
             }
-            
         }
         button.addAction(action, for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -64,14 +73,13 @@ class RegisterViewController: UIViewController {
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupLayout()
         view.backgroundColor = .systemBlue
         // Do any additional setup after loading the view.
     }
-    private func setupLayout(){
+    private func setupLayout() {
         view.addSubview(titleLabel)
         view.addSubview(nickNameTextField)
         view.addSubview(emailTextField)
@@ -81,24 +89,18 @@ class RegisterViewController: UIViewController {
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
             nickNameTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
             nickNameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             nickNameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-
             emailTextField.topAnchor.constraint(equalTo: nickNameTextField.bottomAnchor, constant: 20),
             emailTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             emailTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
             passwordTextField.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 20),
             passwordTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             passwordTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
             signUpButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 20),
             signUpButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             signUpButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-    
         ])
     }
 
@@ -114,9 +116,7 @@ class RegisterViewController: UIViewController {
     private func checkName(_ name : String? ) -> Bool{
         guard name != nil else { return false }
         return name!.allSatisfy{ ("a"..."z").contains($0) || ("A"..."Z").self.contains($0)
-        
         }
-        
     }
     private func checkEmail(_ email: String? ) -> Bool{
         guard email != nil else {  return false
@@ -124,6 +124,10 @@ class RegisterViewController: UIViewController {
         let emailRegex = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,64}$"
             let emailPredicate = NSPredicate(format: "SELF MATCHES[c] %@", emailRegex)
             return emailPredicate.evaluate(with: email)
-               
+    }
+    private func checkPassword(_ password: String? ) -> Bool{
+        guard password != nil else {  return false
+        }
+        return password!.count >= 8
     }
 }

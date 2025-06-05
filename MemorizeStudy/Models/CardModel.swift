@@ -30,6 +30,7 @@ class CardModel: UIView {
         backgroundColor = .systemTeal
         layer.cornerRadius = 10
         layer.masksToBounds = true
+        layer.shadowOpacity = 0.5
         self.contentMode = .scaleAspectFit
 //        addSubview(backView)
         addSubview(frontView)
@@ -39,6 +40,8 @@ class CardModel: UIView {
         frontView.contentMode = .scaleAspectFit
         backView.frame = bounds
         frontView.frame = bounds
+        backView.layer.shadowOpacity = 0.5
+        frontView.layer.shadowOpacity = 0.5
     }
     func writeCard(){
         if delegate?.firstCard == nil {

@@ -53,25 +53,22 @@ class LogInViewController: UIViewController {
                    user.passsword == self.passwordTextField.text {
                     let nextVC = ViewController()
                     nextVC.currentPlayer = user
-                    print(nextVC.currentPlayer)
-                    print(user)
                     self.navigationController?.pushViewController(nextVC, animated: true)
                     return
                 }
             }
             print(self.dataSource)
-            let alertController = UIAlertController(title: "Error", message: "Wrong username or password", preferredStyle: .alert)
+            let alertController = UIAlertController(title: "Error",
+                                                    message: "Wrong username or password",
+                                                    preferredStyle: .alert)
             let alertAction = UIAlertAction(title: "OK", style: .default)
             alertController.addAction(alertAction)
             self.present(alertController, animated: true)
-            
         }
         button.addAction(action, for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
-
         return button
     }()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         dataSource = dataManager.obtainData()
@@ -86,28 +83,21 @@ class LogInViewController: UIViewController {
         view.addSubview(logInButton)
         view.addSubview(newUserButton)
         NSLayoutConstraint.activate([
-            
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
             nickNameTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
             nickNameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             nickNameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-
-            
             passwordTextField.topAnchor.constraint(equalTo: nickNameTextField.bottomAnchor, constant: 20),
             passwordTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             passwordTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
             logInButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 20),
             logInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             logInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
             newUserButton.topAnchor.constraint(equalTo: logInButton.bottomAnchor),
             newUserButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            newUserButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
+            newUserButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
     }
 

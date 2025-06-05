@@ -19,7 +19,10 @@ class AboutGameViewController: UIViewController {
     }()
     lazy var rulesLabel: UILabel = {
         let label = UILabel()
-        label.text = "To start game press start button. You will have limitted time to find all pairs of cards. Try to find all pairs as fast as possible. You always can change game settings."
+        label.text = """
+                        To start game press start button. You will have limitted time to find all pairs of cards.
+                        Try to find all pairs as fast as possible. You always can change game settings.
+                     """
         label.textColor = .white
         label.textAlignment = .left
         label.numberOfLines = 0
@@ -33,19 +36,16 @@ class AboutGameViewController: UIViewController {
         view.addSubview(rulesLabel)
         setupLayout()
         view.backgroundColor = .systemBlue
-        
         // Do any additional setup after loading the view.
     }
-    
     func setupLayout() {
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 140),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            
             rulesLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
             rulesLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            rulesLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            rulesLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
 //            rulesLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
             ])
     }

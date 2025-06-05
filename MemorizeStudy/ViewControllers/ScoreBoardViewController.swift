@@ -12,11 +12,12 @@ class ScoreBoardViewController: UIViewController {
     let scoreboard = {
         let tableView = UITableView()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.backgroundColor = .white
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
     var dataSource: [User] {
-        get{
+        get {
             return CoreDataManager.shared.obtainData()
         }
     }
@@ -24,6 +25,7 @@ class ScoreBoardViewController: UIViewController {
         super.viewDidLoad()
         scoreboard.dataSource = self
         scoreboard.delegate = self
+        view.backgroundColor = .white
 //        view.backgroundColor = .white
         setupLayout()
         // Do any additional setup after loading the view.
@@ -32,7 +34,6 @@ class ScoreBoardViewController: UIViewController {
         super.viewWillAppear(animated)
         scoreboard.reloadData()
     }
-    
     func setupLayout() {
         view.addSubview(scoreboard)
         print("setupLayoutworking")
@@ -42,31 +43,24 @@ class ScoreBoardViewController: UIViewController {
             scoreboard.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scoreboard.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
-        
     }
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }
 extension ScoreBoardViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         print(dataSource)
         return dataSource.count
     }
-    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         var configuration = cell.defaultContentConfiguration()
-        configuration.text = self.dataSource[indexPath.row].nickName
-        configuration.secondaryText = "\(self.dataSource[indexPath.row].highscore)"
+        configuration.text = " \(indexPath.row + 1) \(String( self.dataSource[indexPath.row].nickName ?? ""))"
+        configuration.textProperties.font = .systemFont(ofSize: 20, weight: .bold)
+        configuration.textProperties.color = .black
+        configuration.secondaryText = "Highscore:\(self.dataSource[indexPath.row].highscore)"
+        configuration.secondaryTextProperties.font = .systemFont(ofSize: 15, weight: .light)
+        configuration.secondaryTextProperties.color = .black
         cell.contentConfiguration = configuration
+        cell.backgroundColor = .clear
         print("cell created")
         return cell
     }
