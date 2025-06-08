@@ -8,21 +8,41 @@
 import UIKit
 
 class GameViewController: UIViewController {
+    private var netManager: NetManager = NetManager()
     var currentPlayer: User!
     var firstCard: CardModel?
     var secondCard: CardModel?
+    private var timer: Timer?
+    private var counter: Int = 0
     private var cards: [CardModel] = []
+    private var backViews: [UIImage?] = []
     private var currentScore: Int16 = 0
     let timerLabel: UILabel = {
         let label = UILabel()
         label.textColor = .systemBlue
-        label.font = .systemFont(ofSize: 20, weight: .bold)
+        label.font = .systemFont(ofSize: 40, weight: .bold)
         label.textAlignment = .center
         label.text = "00:00"
         return label
     }()
-    var timer: Timer?
-    private var counter: Int = 0
+    let difficultyDescriptionLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .systemGray
+        label.font = .systemFont(ofSize: 30)
+        label.textAlignment = .center
+        label.text = "Difficulty:"
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    let cardsDescriptionLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .systemGray
+        label.font = .systemFont(ofSize: 30)
+        label.textAlignment = .center
+        label.text = "Cards:"
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     var gameView: UIView = {
         let view = UIView()
         view.backgroundColor = .white
@@ -30,11 +50,11 @@ class GameViewController: UIViewController {
         view.layer.masksToBounds = true
         return view
     }()
-    var menu: UIButton = {
+    var difficultyMenu: UIButton = {
         let button = UIButton()
         button.setTitle("Easy", for: .normal)
         button.setTitleColor(.systemBlue, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
+        button.titleLabel?.font = .systemFont(ofSize: 30, weight: .bold)
         let menuElements: [UIMenuElement] = [
             UIAction(title: "Easy", handler: {_ in button.setTitle("Easy", for: .normal)}),
             UIAction(title: "Medium", handler: {_ in button.setTitle("Medium", for: .normal)}),
@@ -45,11 +65,29 @@ class GameViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
+    var cardSetMenu: UIButton = {
+        let button = UIButton()
+        button.setTitle("System cards", for: .normal)
+        button.setTitleColor(.systemBlue, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 30, weight: .bold)
+        let menuElements: [UIMenuElement] = [
+            UIAction(title: "System cards", handler: {_ in button.setTitle("System cards", for: .normal)}),
+            UIAction(title: "Cats cards", handler: {_ in button.setTitle("Cats cards", for: .normal)}),
+            UIAction(title: "Dogs cards", handler: {_ in button.setTitle("Dogs cards", for: .normal)})
+        ]
+        button.menu = UIMenu( options: .displayInline, children: menuElements)
+        button.showsMenuAsPrimaryAction = true
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
     var startGame: UIButton = {
         let button = UIButton()
+        button.layer.cornerRadius = 5
+        button.backgroundColor = .systemBlue
         button.setTitle("Start Game", for: .normal)
-        button.setTitleColor(.systemBlue, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
+        button.setTitleColor(.white, for: .normal)
+        
+        button.titleLabel?.font = .systemFont(ofSize: 30, weight: .bold)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -61,23 +99,69 @@ class GameViewController: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         gameView.subviews.forEach { $0.removeFromSuperview() }
+        startGame.isEnabled = true
         timer?.invalidate()
         counter = 0
         currentScore = 0
     }
     func setupSettingsLayout() {
-        view.addSubview(menu)
+        let cardStackView: UIStackView = {
+            let stackView = UIStackView(arrangedSubviews: [cardsDescriptionLabel, cardSetMenu])
+            stackView.axis = .horizontal
+            stackView.distribution = .equalCentering
+            stackView.spacing = 10
+            stackView.translatesAutoresizingMaskIntoConstraints = false
+            return stackView
+        }()
+        let difficultyStackView: UIStackView = {
+            let stackView = UIStackView(arrangedSubviews: [difficultyDescriptionLabel, difficultyMenu])
+            stackView.axis = .horizontal
+            stackView.distribution = .equalCentering
+            stackView.spacing = 10
+            stackView.translatesAutoresizingMaskIntoConstraints = false
+            return stackView
+        }()
+        let stackView: UIStackView = {
+            let stackView = UIStackView(arrangedSubviews: [cardStackView, difficultyStackView])
+            stackView.axis = .vertical
+            stackView.spacing = 20
+            stackView.translatesAutoresizingMaskIntoConstraints = false
+            return stackView
+        }()
+        view.addSubview(stackView)
         view.addSubview(startGame)
         let action  = UIAction { _ in
-            self.setupGameLayout(with: self.menu.titleLabel?.text ?? "Easy")
-            UIView.transition(from: self.view, to: self.gameView, duration: 0.3, options: .transitionFlipFromLeft)
+            self.startGame.isEnabled = false
+            Task {
+                switch self.cardSetMenu.titleLabel?.text ?? "System cards" {
+                case "System cards":
+                    self.backViews = [ UIImage(systemName: "cross.vial"),
+                                         UIImage(systemName: "bolt.car"),
+                                         UIImage(systemName: "pc"),
+                                         UIImage(systemName: "stethoscope"),
+                                         UIImage(systemName: "car.fill"),
+                                         UIImage(systemName: "house.circle.fill"),
+                                         UIImage(systemName: "cross.circle.fill"),
+                                         UIImage(systemName: "airplane.circle.fill")]
+                case "Cats cards":
+                    self.backViews = try await self.netManager.downloadImage(for: .cat)
+                case "Dogs cards":
+                    self.backViews = try await self.netManager.downloadImage(for: .dog)
+                default:
+                    self.backViews = []
+                }
+                self.startGame.isEnabled = true
+                self.setupGameLayout(with: self.difficultyMenu.titleLabel?.text ?? "Easy")
+                UIView.transition(from: self.view, to: self.gameView, duration: 0.3, options: .transitionFlipFromLeft)
+            }
         }
         startGame.addAction(action, for: .touchUpInside)
         NSLayoutConstraint.activate([
-            menu.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            menu.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            startGame.topAnchor.constraint(equalTo: menu.bottomAnchor, constant: 20),
-            startGame.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 100),
+            stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            startGame.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            startGame.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            startGame.widthAnchor.constraint(equalToConstant: 200)
         ])
     }
     func setupGameLayout(with difficulty: String) {
@@ -130,8 +214,9 @@ class GameViewController: UIViewController {
             cards.removeAll { $0 == secondCard }
             currentScore += 10
             if cards.isEmpty {
-                if currentPlayer.highscore < currentScore {
-                    currentPlayer.highscore = currentScore
+                if currentPlayer.highscore < Int16(Double(currentScore) / (Double(counter) * 0.1)) {
+                    currentPlayer.highscore = Int16(Double(currentScore) / (Double(counter) * 0.1))
+                    print(currentPlayer.highscore)
                 }
                 let alertController = UIAlertController(title: "You won!",
                                                         message: "Your score is:\(Int(Double(currentScore) / (Double(counter) * 0.1)))",
@@ -154,38 +239,30 @@ class GameViewController: UIViewController {
             currentScore = Int16((Double(currentScore) * 0.9))
             }
         }
-    func getCards(difficulty: String) -> [CardModel] {
+    func getCards(difficulty: String)  -> [CardModel] {
         var cards: [CardModel] = []
-        var backViews: [UIImage?] = [ UIImage(systemName: "cross.vial"),
-                                      UIImage(systemName: "bolt.car"),
-                                      UIImage(systemName: "pc"),
-                                      UIImage(systemName: "stethoscope"),
-                                      UIImage(systemName: "car.fill"),
-                                      UIImage(systemName: "house.circle.fill"),
-                                      UIImage(systemName: "cross.circle.fill"),
-                                      UIImage(systemName: "airplane.circle.fill")]
         backViews.shuffle()
-       switch difficulty {
-            case "Easy":
-           for card in 0..<3 {
-               cards.append(CardModel(frontImage: backViews[card]))
-               cards.append(CardModel(frontImage: backViews[card]))
-           }
-            case "Medium":
-           for card in 0..<6 {
-               cards.append(CardModel(frontImage: backViews[card]))
-               cards.append(CardModel(frontImage: backViews[card]))
-           }
-            case "Hard":
-           for card in 0..<8 {
-               cards.append(CardModel(frontImage: backViews[card]))
-               cards.append(CardModel(frontImage: backViews[card]))
-           }
-       default:
-           return []
-        }
-        return cards
-    }
+                switch difficulty {
+                case "Easy":
+                    for card in 0..<3 {
+                        cards.append(CardModel(frontImage: backViews[card]))
+                        cards.append(CardModel(frontImage: backViews[card]))
+                    }
+                case "Medium":
+                    for card in 0..<6 {
+                        cards.append(CardModel(frontImage: backViews[card]))
+                        cards.append(CardModel(frontImage: backViews[card]))
+                    }
+                case "Hard":
+                    for card in 0..<8 {
+                        cards.append(CardModel(frontImage: backViews[card]))
+                        cards.append(CardModel(frontImage: backViews[card]))
+                    }
+                default:
+                    return []
+                }
+                return cards
+            }
     func getCoordinates(difficulty: String) -> [CGRect] {
         switch difficulty {
             case "Easy":
