@@ -17,6 +17,7 @@ class GameViewController: UIViewController {
     private var cards: [CardModel] = []
     private var backViews: [UIImage?] = []
     private var currentScore: Int16 = 0
+
     let timerLabel: UILabel = {
         let label = UILabel()
         label.textColor = .systemBlue
@@ -132,6 +133,15 @@ class GameViewController: UIViewController {
         view.addSubview(startGame)
         let action  = UIAction { _ in
             self.startGame.isEnabled = false
+            stackView.isHidden = true
+            self.startGame.isHidden = true
+            let loadingIndicator = {
+                let indicator = UIActivityIndicatorView(style: .large)
+                indicator.center = self.view.center
+                return indicator
+            }()
+            self.view.addSubview(loadingIndicator)
+            loadingIndicator.startAnimating()
             Task {
                 switch self.cardSetMenu.titleLabel?.text ?? "System cards" {
                 case "System cards":
@@ -152,7 +162,13 @@ class GameViewController: UIViewController {
                 }
                 self.startGame.isEnabled = true
                 self.setupGameLayout(with: self.difficultyMenu.titleLabel?.text ?? "Easy")
-                UIView.transition(from: self.view, to: self.gameView, duration: 0.3, options: .transitionFlipFromLeft)
+                UIView.transition(from: self.view,
+                                  to: self.gameView,
+                                  duration: 0.3,
+                                  options: .transitionFlipFromLeft)
+                loadingIndicator.removeFromSuperview()
+                stackView.isHidden = false
+                self.startGame.isHidden = false
             }
         }
         startGame.addAction(action, for: .touchUpInside)

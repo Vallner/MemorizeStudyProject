@@ -29,7 +29,11 @@
             <objects>
                 <navigationController id="MmK-e4-B6c" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="000-nd-Xdt">
+                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <textAttributes key="titleTextAttributes">
+                            <fontDescription key="fontDescription" name="Noteworthy-Bold" family="Noteworthy" pointSize="14"/>
+                        </textAttributes>
                     </navigationBar>
                     <connections>
                         <segue destination="XJn-vt-g4E" kind="relationship" relationship="rootViewController" id="5An-YS-Mmo"/>
