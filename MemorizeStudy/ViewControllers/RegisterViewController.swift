@@ -33,6 +33,7 @@ class RegisterViewController: UIViewController {
                 newUser.passsword = self.passwordTextField.text ?? ""
 //                self.dataManager.saveContext()
                 self.delegate?.dataSource.append(newUser)
+                CoreDataManager.shared.saveContext()
                 let nextVC = ViewController()
                 nextVC.currentPlayer = newUser
                 self.navigationController?.pushViewController(nextVC, animated: true)

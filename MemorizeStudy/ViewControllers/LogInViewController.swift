@@ -7,7 +7,7 @@
 
 import UIKit
 
-class LogInViewController: UIViewController {
+class LogInViewController: UIViewController  {
 
     var dataSource: [User] = []
     private let dataManager = CoreDataManager.shared
@@ -45,6 +45,7 @@ class LogInViewController: UIViewController {
         textField.backgroundColor = .white
         textField.borderStyle = .roundedRect
         textField.attributedPlaceholder = NSAttributedString(string: "Nickname", attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray])
+        textField.returnKeyType = .next
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
@@ -54,6 +55,8 @@ class LogInViewController: UIViewController {
         textField.backgroundColor = .white
         textField.borderStyle = .roundedRect
         textField.attributedPlaceholder = NSAttributedString(string: "Password", attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray])
+        textField.returnKeyType = .done
+        
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
@@ -88,18 +91,14 @@ class LogInViewController: UIViewController {
     }()
     override func viewDidLoad() {
         super.viewDidLoad()
+        nickNameTextField.delegate = self
+        passwordTextField.delegate = self
         dataSource = dataManager.obtainData()
         setupLayout()
         navigationItem.backButtonTitle = ""
         // Do any additional setup after loading the view.
     }
     private func setupLayout() {
-        let separator = {
-            let line = UIView()
-            line.backgroundColor = .separator
-            line.translatesAutoresizingMaskIntoConstraints = false
-            return line
-        }()
         let loginStackView: UIStackView = {
             let stackView = UIStackView(arrangedSubviews: [nickNameTextField,passwordTextField])
             stackView.spacing = 10
@@ -125,14 +124,17 @@ class LogInViewController: UIViewController {
         ])
         
     }
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
     }
-    */
+extension LogInViewController: UITextFieldDelegate{
+   func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+       switch textField {
+           case nickNameTextField:
+           passwordTextField.becomeFirstResponder()
+       case passwordTextField:
+           logInButton.sendActions(for: .touchUpInside)
+       default:
+           break
+       }
+        return true
+    }
 }

@@ -48,7 +48,10 @@ class ScoreBoardViewController: UIViewController {
 extension ScoreBoardViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         print(dataSource)
-        return dataSource.count
+        if dataSource.count < 10 {
+            return dataSource.count
+        }
+        return 10
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)

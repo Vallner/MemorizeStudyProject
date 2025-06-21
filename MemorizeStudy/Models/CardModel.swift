@@ -21,7 +21,8 @@ class CardModel: UIView {
         
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        flip(completion: writeCard)
+        if isFaceUp { flip(completion: writeCard) }
+        
     }
     
     init(frontImage: UIImage? ) {
