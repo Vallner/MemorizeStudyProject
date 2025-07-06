@@ -8,13 +8,14 @@
 import UIKit
 
 class ViewController: UITabBarController {
-    
+   
     var currentPlayer: User!
     let gameVC = GameViewController()
     let scoreBoardVC = ScoreBoardViewController()
     let aboutGameVC = AboutGameViewController()
     override func viewDidLoad() {
         super.viewDidLoad()
+      
         setupTabBar()
         view.backgroundColor = .white
         // Do any additional setup after loading the view.
@@ -24,19 +25,25 @@ class ViewController: UITabBarController {
         navigationController?.navigationBar.isHidden = true
     }
     private func setupTabBar() {
-        
-        tabBar.backgroundColor = .white
-        tabBar.layer.cornerRadius = 20
-        tabBar.layer.shadowOpacity = 0.5
-        viewControllers = [generateVC(with: "About game", image: UIImage(systemName: "house")!, viewController: aboutGameVC),
-                           generateVC(with: "Game", image: UIImage(systemName: "gamecontroller")!, viewController: gameVC),
-                           generateVC(with: "Scoreboard", image: UIImage(systemName: "star")!, viewController: scoreBoardVC)
+        tabBar.isHidden = true
+        viewControllers = [ aboutGameVC, gameVC, scoreBoardVC ]
+        let customTabBarButtons: [UIButton] = [
+            generateTapBarButton(image: "house", tag: 0),
+            generateTapBarButton(image: "gamecontroller", tag: 1),
+            generateTapBarButton(image: "star", tag: 2)
         ]
+        let customTabBarView = TabBarCustomView(frame: CGRect(x: 0, y:view.frame.height - 100,
+                                                                width: view.frame.width, height: 50),
+                                                                buttons: customTabBarButtons)
+        view.addSubview(customTabBarView)
     }
-    private func generateVC(with title: String, image: UIImage, viewController: UIViewController) -> UIViewController {
-        viewController.tabBarItem.title = title
-        viewController.tabBarItem.image = image
-        return viewController
+    private func generateTapBarButton( image: String, tag: Int) -> UIButton {
+        let action = UIAction{ _ in
+            self.selectedIndex = tag
+        }
+        var button = UIButton(primaryAction: action)
+        button.setImage(UIImage(systemName: image), for: .normal)
+        return button
     }
     override func viewDidLayoutSubviews() {
 //        tabBar.invalidateIntrinsicContentSize()

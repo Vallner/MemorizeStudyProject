@@ -8,11 +8,19 @@
 import UIKit
 
 class ScoreBoardViewController: UIViewController {
-    var pageIndex: Int!
+    let scoreboardTitle: UILabel = {
+        let label = UILabel()
+        label.text = "ScoreBoard"
+        label.textColor = .white
+        label.font = UIFont.systemFont(ofSize: 30, weight: .bold)
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     let scoreboard = {
         let tableView = UITableView()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-        tableView.backgroundColor = .white
+        tableView.backgroundColor = UIColor(#colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1))
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
@@ -25,7 +33,7 @@ class ScoreBoardViewController: UIViewController {
         super.viewDidLoad()
         scoreboard.dataSource = self
         scoreboard.delegate = self
-        view.backgroundColor = .white
+        view.backgroundColor = UIColor(#colorLiteral(red: 0.6000000238, green: 0.6000000238, blue: 0.6000000238, alpha: 1))
 //        view.backgroundColor = .white
         setupLayout()
         // Do any additional setup after loading the view.
@@ -36,12 +44,15 @@ class ScoreBoardViewController: UIViewController {
     }
     func setupLayout() {
         view.addSubview(scoreboard)
+        view.addSubview(scoreboardTitle)
         print("setupLayoutworking")
         NSLayoutConstraint.activate([
-            scoreboard.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scoreboardTitle.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scoreboardTitle.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            scoreboard.topAnchor.constraint(equalTo: scoreboardTitle.bottomAnchor, constant: 8),
             scoreboard.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scoreboard.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scoreboard.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            scoreboard.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
 }
@@ -58,10 +69,10 @@ extension ScoreBoardViewController: UITableViewDataSource, UITableViewDelegate {
         var configuration = cell.defaultContentConfiguration()
         configuration.text = " \(indexPath.row + 1) \(String( self.dataSource[indexPath.row].nickName ?? ""))"
         configuration.textProperties.font = .systemFont(ofSize: 20, weight: .bold)
-        configuration.textProperties.color = .black
+        configuration.textProperties.color = .white
         configuration.secondaryText = "Highscore:\(self.dataSource[indexPath.row].highscore)"
         configuration.secondaryTextProperties.font = .systemFont(ofSize: 15, weight: .light)
-        configuration.secondaryTextProperties.color = .black
+        configuration.secondaryTextProperties.color = .white
         cell.contentConfiguration = configuration
         cell.backgroundColor = .clear
         print("cell created")

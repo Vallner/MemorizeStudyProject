@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 class GameViewController: UIViewController {
     private var netManager: NetManager = NetManager()
@@ -13,7 +14,8 @@ class GameViewController: UIViewController {
     var firstCard: CardModel?
     var secondCard: CardModel?
     private var timer: Timer?
-    private var counter: Int = 0
+    @Published private var counter: Int = 0
+    var cancellables: Set<AnyCancellable> = []
     private var cards: [CardModel] = []
     private var backViews: [UIImage?] = []
     private var currentScore: Int16 = 0
@@ -23,7 +25,7 @@ class GameViewController: UIViewController {
     }()
     let timerLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .systemBlue
+        label.textColor = .systemGray
         label.font = .systemFont(ofSize: 40, weight: .bold)
         label.textAlignment = .center
         label.text = "00:00"
@@ -31,7 +33,7 @@ class GameViewController: UIViewController {
     }()
     let difficultyDescriptionLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .systemGray
+        label.textColor = .white
         label.font = .systemFont(ofSize: 30)
         label.textAlignment = .center
         label.text = "Difficulty:"
@@ -40,7 +42,7 @@ class GameViewController: UIViewController {
     }()
     let cardsDescriptionLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .systemGray
+        label.textColor = .white
         label.font = .systemFont(ofSize: 30)
         label.textAlignment = .center
         label.text = "Cards:"
@@ -57,7 +59,7 @@ class GameViewController: UIViewController {
     var difficultyMenu: UIButton = {
         let button = UIButton()
         button.setTitle("Easy", for: .normal)
-        button.setTitleColor(.systemBlue, for: .normal)
+        button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 30, weight: .bold)
         let menuElements: [UIMenuElement] = [
             UIAction(title: "Easy", handler: {_ in button.setTitle("Easy", for: .normal)}),
@@ -72,7 +74,7 @@ class GameViewController: UIViewController {
     var cardSetMenu: UIButton = {
         let button = UIButton()
         button.setTitle("System cards", for: .normal)
-        button.setTitleColor(.systemBlue, for: .normal)
+        button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 30, weight: .bold)
         let menuElements: [UIMenuElement] = [
             UIAction(title: "System cards", handler: {_ in button.setTitle("System cards", for: .normal)}),
@@ -87,18 +89,27 @@ class GameViewController: UIViewController {
     var startGame: UIButton = {
         let button = UIButton()
         button.layer.cornerRadius = 5
-        button.backgroundColor = .systemBlue
+        button.backgroundColor = .black
         button.setTitle("Start Game", for: .normal)
         button.setTitleColor(.white, for: .normal)
-        
         button.titleLabel?.font = .systemFont(ofSize: 30, weight: .bold)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = UIColor(#colorLiteral(red: 0.6000000238, green: 0.6000000238, blue: 0.6000000238, alpha: 1))
         setupSettingsLayout()
+        $counter.sink { [weak self] value in
+            if value < 3600 {
+                let minutes = value / 60
+                let seconds = value % 60
+                let timeString = String(format: "%02d:%02d", minutes, seconds)
+                self?.timerLabel.text = timeString
+                print(value)
+            }
+        }
+        .store(in: &cancellables)
     }
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
@@ -109,18 +120,23 @@ class GameViewController: UIViewController {
         currentScore = 0
     }
     func setupSettingsLayout() {
+       
         let cardStackView: UIStackView = {
-            let stackView = UIStackView(arrangedSubviews: [cardsDescriptionLabel, cardSetMenu])
+            let spacingView = UIView()
+            spacingView.bounds = CGRect(x: 0, y: 0, width: 10, height: 10)
+            let stackView = UIStackView(arrangedSubviews: [spacingView, cardsDescriptionLabel, cardSetMenu])
             stackView.axis = .horizontal
-            stackView.distribution = .equalCentering
+            stackView.distribution = .equalSpacing
             stackView.spacing = 10
             stackView.translatesAutoresizingMaskIntoConstraints = false
             return stackView
         }()
         let difficultyStackView: UIStackView = {
-            let stackView = UIStackView(arrangedSubviews: [difficultyDescriptionLabel, difficultyMenu])
+            let spacingView = UIView()
+            spacingView.bounds = CGRect(x: 0, y: 0, width: 10, height: 10)
+            let stackView = UIStackView(arrangedSubviews: [spacingView, difficultyDescriptionLabel, difficultyMenu])
             stackView.axis = .horizontal
-            stackView.distribution = .equalCentering
+            stackView.distribution = .equalSpacing
             stackView.spacing = 10
             stackView.translatesAutoresizingMaskIntoConstraints = false
             return stackView
@@ -128,8 +144,11 @@ class GameViewController: UIViewController {
         let stackView: UIStackView = {
             let stackView = UIStackView(arrangedSubviews: [cardStackView, difficultyStackView])
             stackView.axis = .vertical
+            stackView.alignment = .leading
             stackView.spacing = 20
             stackView.translatesAutoresizingMaskIntoConstraints = false
+            stackView.layer.cornerRadius = 10
+            stackView.layer.backgroundColor = CGColor(red: 0.3, green: 0.3, blue: 0.3, alpha: 1)
             return stackView
         }()
         view.addSubview(stackView)
@@ -175,6 +194,7 @@ class GameViewController: UIViewController {
         NSLayoutConstraint.activate([
             stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 100),
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            stackView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8),
             startGame.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             startGame.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             startGame.widthAnchor.constraint(equalToConstant: 200)
@@ -182,13 +202,7 @@ class GameViewController: UIViewController {
     }
     func setupGameLayout(with difficulty: String) {
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            if self.counter < 3600 {
-                let minutes = self.counter / 60
-                let seconds = self.counter % 60
-                let timeString = String(format: "%02d:%02d", minutes, seconds)
-                self.timerLabel.text = timeString
-                self.counter += 1
-            }
+            self.counter += 1
         }
         var gameFrame = view.frame
         gameFrame.origin.y += 100

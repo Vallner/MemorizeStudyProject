@@ -35,7 +35,7 @@ class AboutGameViewController: UIViewController {
         view.addSubview(titleLabel)
         view.addSubview(rulesLabel)
         setupLayout()
-        view.backgroundColor = .systemBlue
+        view.backgroundColor = UIColor(#colorLiteral(red: 0.6000000238, green: 0.6000000238, blue: 0.6000000238, alpha: 1))
         // Do any additional setup after loading the view.
     }
     func setupLayout() {
